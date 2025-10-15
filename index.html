@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TH True NUT AI Custom - Sữa Óc Chó Tùy Chỉnh</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #080c7a; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #030756; }
+        .slider { width: 100%; margin: 10px 0; }
+        .result { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 5px; }
+        button { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #218838; }
+        .section { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TH True NUT AI Custom</h1>
+        <p>Mô phỏng app AI tùy chỉnh dinh dưỡng cho sữa óc chó. Điều chỉnh tỷ lệ thành phần và bổ sung dinh dưỡng!</p>
+        
+        <form id="customForm">
+            <div class="section">
+                <h2>Thành phần cơ bản</h2>
+                <label for="occho">Hạt óc chó (% cơ bản: 60%):</label>
+                <input type="range" id="occho" min="50" max="80" value="60" class="slider">
+                <span id="occhoValue">60%</span><br>
+                
+                <label for="yenmach">Yến mạch (%):</label>
+                <input type="range" id="yenmach" min="0" max="20" value="10" class="slider">
+                <span id="yenmachValue">10%</span><br>
+                
+                <label for="chala">Chà là cô đặc (%):</label>
+                <input type="range" id="chala" min="0" max="10" value="3.5" step="0.5" class="slider">
+                <span id="chalaValue">3.5%</span><br>
+                
+                <label for="suabo">Sữa bò tươi (%):</label>
+                <input type="range" id="suabo" min="0" max="20" value="5" class="slider">
+                <span id="suaboValue">5%</span><br>
+            </div>
+            
+            <div class="section">
+                <h2>Bổ sung dinh dưỡng (0-100% tăng thêm)</h2>
+                <label for="omega3">Omega-3 (%):</label>
+                <input type="range" id="omega3" min="0" max="100" value="0" class="slider">
+                <span id="omega3Value">0%</span><br>
+                
+                <label for="vitA">Vitamin A (%):</label>
+                <input type="range" id="vitA" min="0" max="100" value="0" class="slider">
+                <span id="vitAValue">0%</span><br>
+                
+                <label for="vitB">Vitamin B (%):</label>
+                <input type="range" id="vitB" min="0" max="100" value="0" class="slider">
+                <span id="vitBValue">0%</span><br>
+                
+                <label for="vitC">Vitamin C (%):</label>
+                <input type="range" id="vitC" min="0" max="100" value="0" class="slider">
+                <span id="vitCValue">0%</span><br>
+                
+                <label for="vitE">Vitamin E (%):</label>
+                <input type="range" id="vitE" min="0" max="100" value="0" class="slider">
+                <span id="vitEValue">0%</span><br>
+                
+                <label for="vitD">Vitamin D (%):</label>
+                <input type="range" id="vitD" min="0" max="100" value="0" class="slider">
+                <span id="vitDValue">0%</span><br>
+                
+                <label for="proteinAdd">Protein bổ sung (%):</label>
+                <input type="range" id="proteinAdd" min="0" max="100" value="0" class="slider">
+                <span id="proteinAddValue">0%</span><br>
+                
+                <label for="lipid">Lipid (chất béo) (%):</label>
+                <input type="range" id="lipid" min="0" max="100" value="0" class="slider">
+                <span id="lipidValue">0%</span><br>
+                
+                <label for="minerals">Khoáng chất khác (canxi, magiê,...) (%):</label>
+                <input type="range" id="minerals" min="0" max="100" value="0" class="slider">
+                <span id="mineralsValue">0%</span><br>
+            </div>
+            
+            <button type="button" onclick="calculateNutrition()">Tùy chỉnh bằng AI</button>
+        </form>
+        
+        <div class="result" id="result">
+            <h2>Kết quả dinh dưỡng (per 100ml)</h2>
+            <p id="energy">Năng lượng: 40.5 kcal</p>
+            <p id="carb">Carb: 4.4 g</p>
+            <p id="protein">Protein: 1.0 g</p>
+            <p id="fat">Fat: 2.1 g</p>
+            <p id="omega3">Omega-3: 0.5 g</p>
+            <p id="vitA">Vitamin A: 0 IU</p>
+            <p id="vitB">Vitamin B: 0 mg</p>
+            <p id="vitC">Vitamin C: 0 mg</p>
+            <p id="vitE">Vitamin E: 0 mg</p>
+            <p id="vitD">Vitamin D: 0 IU</p>
+            <p id="minerals">Khoáng chất: 0 mg</p>
+            <p id="suggestion">Gợi ý AI: Sản phẩm cơ bản, tốt cho tim mạch và não bộ.</p>
+        </div>
+    </div>
+
+    <script>
+        // Cập nhật giá trị slider
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', () => {
+                document.getElementById(slider.id + 'Value').textContent = slider.value + '%';
+            });
+        });
+
+        function calculateNutrition() {
+            // Lấy giá trị
+            const occho = parseFloat(document.getElementById('occho').value);
+            const yenmach = parseFloat(document.getElementById('yenmach').value);
+            const chala = parseFloat(document.getElementById('chala').value);
+            const suabo = parseFloat(document.getElementById('suabo').value);
+            const omega3Add = parseFloat(document.getElementById('omega3').value) / 100;
+            const vitAAdd = parseFloat(document.getElementById('vitA').value) / 100;
+            const vitBAdd = parseFloat(document.getElementById('vitB').value) / 100;
+            const vitCAdd = parseFloat(document.getElementById('vitC').value) / 100;
+            const vitEAdd = parseFloat(document.getElementById('vitE').value) / 100;
+            const vitDAdd = parseFloat(document.getElementById('vitD').value) / 100;
+            const proteinAdd = parseFloat(document.getElementById('proteinAdd').value) / 100;
+            const lipidAdd = parseFloat(document.getElementById('lipid').value) / 100;
+            const mineralsAdd = parseFloat(document.getElementById('minerals').value) / 100;
+            
+            // Giá trị cơ bản (dựa trên TH True Nut, ước tính per 100ml)
+            let baseEnergy = 40.5;
+            let baseCarb = 4.4;
+            let baseProtein = 1.0;
+            let baseFat = 2.1;
+            let baseOmega3 = 0.5; // Từ óc chó
+            let baseVitA = 0; // Thấp
+            let baseVitB = 0.1; // Từ yến mạch
+            let baseVitC = 0;
+            let baseVitE = 0.5; // Từ óc chó
+            let baseVitD = 0;
+            let baseMinerals = 50; // mg, ước tính canxi, etc.
+            
+            // Điều chỉnh dựa trên thành phần
+            baseEnergy += (occho - 60) * 0.5 + yenmach * 0.3 + chala * 1 + suabo * 0.8;
+            baseCarb += yenmach * 0.2 + chala * 0.5;
+            baseProtein += occho * 0.01 + suabo * 0.1 + proteinAdd * 2; // Thêm protein
+            baseFat += occho * 0.02 + yenmach * 0.05 + lipidAdd * 1.5; // Thêm lipid
+            baseOmega3 += occho * 0.01 + omega3Add * 1; // Tăng omega-3
+            baseVitA += vitAAdd * 100; // IU
+            baseVitB += vitBAdd * 1; // mg
+            baseVitC += vitCAdd * 10; // mg
+            baseVitE += vitEAdd * 2; // mg
+            baseVitD += suabo * 0.5 + vitDAdd * 100; // IU từ sữa
+            baseMinerals += suabo * 10 + mineralsAdd * 100; // mg
+            
+            // Hiển thị
+            document.getElementById('energy').textContent = 'Năng lượng: ' + baseEnergy.toFixed(1) + ' kcal';
+            document.getElementById('carb').textContent = 'Carb: ' + baseCarb.toFixed(1) + ' g';
+            document.getElementById('protein').textContent = 'Protein: ' + baseProtein.toFixed(1) + ' g';
+            document.getElementById('fat').textContent = 'Fat: ' + baseFat.toFixed(1) + ' g';
+            document.getElementById('omega3').textContent = 'Omega-3: ' + baseOmega3.toFixed(1) + ' g';
+            document.getElementById('vitA').textContent = 'Vitamin A: ' + baseVitA.toFixed(0) + ' IU';
+            document.getElementById('vitB').textContent = 'Vitamin B: ' + baseVitB.toFixed(1) + ' mg';
+            document.getElementById('vitC').textContent = 'Vitamin C: ' + baseVitC.toFixed(1) + ' mg';
+            document.getElementById('vitE').textContent = 'Vitamin E: ' + baseVitE.toFixed(1) + ' mg';
+            document.getElementById('vitD').textContent = 'Vitamin D: ' + baseVitD.toFixed(0) + ' IU';
+            document.getElementById('minerals').textContent = 'Khoáng chất: ' + baseMinerals.toFixed(0) + ' mg';
+            
+            // Gợi ý AI
+            let suggestion = 'Gợi ý AI: ';
+            if (baseOmega3 > 1) suggestion += 'Tăng omega-3, tốt cho tim mạch và não bộ. ';
+            if (baseVitC > 5 || baseVitE > 1) suggestion += 'Tăng vitamin chống oxy hóa, hỗ trợ miễn dịch. ';
+            if (baseProtein > 2) suggestion += 'Tăng protein, phù hợp cho người tập gym. ';
+            if (baseMinerals > 100) suggestion += 'Tăng khoáng chất, tốt cho xương và sức khỏe tổng thể. ';
+            if (baseEnergy > 60) suggestion += 'Năng lượng cao, phù hợp cho hoạt động thể chất. ';
+            document.getElementById('suggestion').textContent = suggestion || 'Gợi ý AI: Sản phẩm cân bằng, tốt cho sức khỏe hàng ngày.';
+        }
+    </script>
+</body>
+</html>
